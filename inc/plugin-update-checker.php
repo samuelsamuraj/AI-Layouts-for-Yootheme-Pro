@@ -26,6 +26,10 @@ class AI_Layout_Update_Checker {
         add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_updates'));
         add_filter('plugins_api', array($this, 'plugin_info'), 10, 3);
         add_filter('upgrader_post_install', array($this, 'post_install'), 10, 3);
+        
+        // Add manual update check action
+        add_action('wp_ajax_ai_layout_check_updates', array($this, 'manual_update_check'));
+        add_action('admin_notices', array($this, 'admin_notices'));
     }
     
     public function check_for_updates($transient) {
@@ -141,5 +145,73 @@ class AI_Layout_Update_Checker {
             delete_transient('ai_layout_github_release');
         }
         return $response;
+    }
+    
+    /**
+     * Manual update check via AJAX
+     */
+    public function manual_update_check() {
+        // Check permissions
+        if (!current_user_can('update_plugins')) {
+            wp_die('Insufficient permissions');
+        }
+        
+        // Clear cache to force fresh check
+        delete_transient('ai_layout_github_release');
+        
+        // Force update check
+        $transient = get_site_transient('update_plugins');
+        if ($transient) {
+            unset($transient->response[$this->plugin_slug]);
+            set_site_transient('update_plugins', $transient);
+        }
+        
+        // Trigger update check
+        $this->check_for_updates($transient);
+        
+        // Return result
+        wp_send_json_success(array(
+            'message' => 'Update check completed',
+            'timestamp' => current_time('mysql')
+        ));
+    }
+    
+    /**
+     * Admin notices for manual update check
+     */
+    public function admin_notices() {
+        if (isset($_GET['page']) && $_GET['page'] === 'ai-layout') {
+            echo '<div class="notice notice-info">';
+            echo '<p><strong>AI Layout:</strong> <a href="#" id="ai-layout-check-updates">Check for updates now</a> | ';
+            echo '<a href="' . admin_url('plugins.php') . '">View all plugins</a></p>';
+            echo '</div>';
+            
+            // Add JavaScript for manual update check
+            echo '<script>
+            jQuery(document).ready(function($) {
+                $("#ai-layout-check-updates").on("click", function(e) {
+                    e.preventDefault();
+                    var $link = $(this);
+                    $link.text("Checking...").prop("href", "#");
+                    
+                    $.post(ajaxurl, {
+                        action: "ai_layout_check_updates",
+                        _ajax_nonce: "' . wp_create_nonce('ai_layout_check_updates') . '"
+                    }, function(response) {
+                        if (response.success) {
+                            $link.text("Update check completed").css("color", "green");
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            $link.text("Update check failed").css("color", "red");
+                        }
+                    }).fail(function() {
+                        $link.text("Update check failed").css("color", "red");
+                    });
+                });
+            });
+            </script>';
+        }
     }
 }

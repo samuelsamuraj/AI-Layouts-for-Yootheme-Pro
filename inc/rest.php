@@ -196,6 +196,123 @@ function ai_layout_validate_wireframe($wireframe) {
 }
 
 /**
+ * Wrap layout with standard YOOtheme structure
+ */
+function ai_layout_wrap_layout($name, $children){
+  $name = $name ? $name : 'Generated Layout';
+  $layout = [
+    'type' => 'layout',
+    'version' => ai_layout_get_yootheme_version(),
+    'yooessentialsVersion' => ai_layout_get_yooessentials_version(),
+    'modified' => gmdate('c'),
+    'name' => $name,
+    'children' => $children
+  ];
+  return apply_filters('ai_layout_layout_wrapper', $layout, $name, $children);
+}
+
+/**
+ * Auto-detect YOOtheme Pro version from the site
+ */
+function ai_layout_get_yootheme_version() {
+  // Try to get version from YOOtheme Pro theme
+  $theme = wp_get_theme();
+  if ($theme->exists() && strpos($theme->get('Name'), 'YOOtheme') !== false) {
+    $version = $theme->get('Version');
+    if ($version) {
+      return $version;
+    }
+  }
+  
+  // Try to get from YOOtheme Pro plugin
+  if (function_exists('get_plugins')) {
+    $plugins = get_plugins();
+    foreach ($plugins as $plugin_file => $plugin_data) {
+      if (strpos($plugin_file, 'yootheme') !== false || strpos($plugin_data['Name'], 'YOOtheme') !== false) {
+        if (!empty($plugin_data['Version'])) {
+          return $plugin_data['Version'];
+        }
+      }
+    }
+  }
+  
+  // Try to get from YOOtheme Pro constants
+  if (defined('YOO_THEME_VERSION')) {
+    return YOO_THEME_VERSION;
+  }
+  
+  // Try to get from YOOtheme Pro options
+  $yoo_options = get_option('yootheme', array());
+  if (!empty($yoo_options['version'])) {
+    return $yoo_options['version'];
+  }
+  
+  // Fallback to default version
+  return defined('AI_LAYOUT_YOOTHEME_VERSION') ? AI_LAYOUT_YOOTHEME_VERSION : '4.5.24';
+}
+
+/**
+ * Auto-detect YOOessentials version from the site
+ */
+function ai_layout_get_yooessentials_version() {
+  // Try to get from YOOessentials plugin
+  if (function_exists('get_plugins')) {
+    $plugins = get_plugins();
+    foreach ($plugins as $plugin_file => $plugin_data) {
+      if (strpos($plugin_file, 'yooessentials') !== false || strpos($plugin_data['Name'], 'Essentials') !== false) {
+        if (!empty($plugin_data['Version'])) {
+          return $plugin_data['Version'];
+        }
+      }
+    }
+  }
+  
+  // Try to get from YOOessentials constants
+  if (defined('YOOESSENTIALS_VERSION')) {
+    return YOOESSENTIALS_VERSION;
+  }
+  
+  // Try to get from YOOessentials options
+  $essentials_options = get_option('yooessentials', array());
+  if (!empty($essentials_options['version'])) {
+    return $essentials_options['version'];
+  }
+  
+  // Fallback to default version
+  return defined('AI_LAYOUT_YOOESSENTIALS_VERSION') ? AI_LAYOUT_YOOESSENTIALS_VERSION : '2.4.4';
+}
+
+/**
+ * Get cached YOOtheme versions or detect fresh
+ */
+function ai_layout_get_cached_yootheme_versions() {
+  $cache_key = 'ai_layout_yootheme_versions';
+  $cached_versions = get_transient($cache_key);
+  
+  if ($cached_versions === false) {
+    $versions = array(
+      'pro' => ai_layout_get_yootheme_version(),
+      'essentials' => ai_layout_get_yooessentials_version(),
+      'detected_at' => current_time('mysql')
+    );
+    
+    // Cache for 1 hour
+    set_transient($cache_key, $versions, HOUR_IN_SECONDS);
+    return $versions;
+  }
+  
+  return $cached_versions;
+}
+
+/**
+ * Force refresh YOOtheme version detection
+ */
+function ai_layout_refresh_yootheme_versions() {
+  delete_transient('ai_layout_yootheme_versions');
+  return ai_layout_get_cached_yootheme_versions();
+}
+
+/**
  * Log errors for debugging
  */
 function ai_layout_log_error($message, $context = []) {
@@ -511,14 +628,10 @@ function ai_layout_compile_from_wireframe($wf, $with_images = false){
     ];
     $children[] = $section;
   }
-  return [
-    'type' => 'layout',
-    'version' => '4.5.24',
-    'yooessentialsVersion' => '2.4.4',
-    'modified' => gmdate('c'),
-    'name' => isset($wf['page_title']) ? $wf['page_title'] : 'Generated Layout',
-    'children' => $children
-  ];
+  return ai_layout_wrap_layout(
+    isset($wf['page_title']) ? $wf['page_title'] : null,
+    $children
+  );
 }
 
 function ai_layout_component_to_element($c, $with_images = false){

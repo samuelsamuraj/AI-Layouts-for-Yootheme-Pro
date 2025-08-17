@@ -136,6 +136,42 @@ The included `.github/workflows/release.yml` will:
 
 **Note**: Since this is a public repository, no authentication is required for the workflow.
 
+## YOOtheme Extension Integration
+
+This plugin includes a YOOtheme extension that integrates AI Layout functionality directly into YOOtheme's customizer interface.
+
+### Features
+- **Customizer Panel**: Dedicated "AI Layout" panel in YOOtheme customizer
+- **Vue.js Interface**: Modern, responsive UI built with Vue 3
+- **Direct Integration**: Seamlessly integrated with YOOtheme's customizer SPA
+- **Real-time Generation**: Generate layouts without leaving the customizer
+
+### Installation
+1. **Activate the plugin** in WordPress admin
+2. **Open YOOtheme customizer** on any page
+3. **Navigate to "AI Layout" panel** in the sidebar
+4. **Start generating layouts** with AI
+
+### Development
+```bash
+cd extensions/ai-layout
+npm install
+npm run dev        # Development with watch
+npm run build      # Production build
+```
+
+### Extension Structure
+```
+extensions/ai-layout/
+├── src/
+│   ├── components/
+│   │   └── AILayoutPanel.vue    # Main Vue component
+│   └── index.js                  # Extension entry point
+├── index.php                     # Extension configuration
+├── package.json                  # Dependencies
+└── webpack.config.js            # Build configuration
+```
+
 ## Requirements
 
 - WordPress 6.0+

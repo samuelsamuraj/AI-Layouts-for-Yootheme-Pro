@@ -49,6 +49,104 @@
 
   const $ = (id)=>document.getElementById(id);
 
+  // Manual update check functionality
+  function initManualUpdateCheck() {
+    const updateButton = $('ai-layout-manual-update-check');
+    const statusSpan = $('ai-layout-update-status');
+    
+    if (updateButton && statusSpan) {
+      updateButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        updateButton.textContent = 'Checking...';
+        updateButton.disabled = true;
+        statusSpan.textContent = '';
+        
+        try {
+          const response = await fetch(AI_LAYOUT.ajaxUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              action: 'ai_layout_check_updates',
+              _ajax_nonce: AI_LAYOUT.ajaxNonce
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            statusSpan.textContent = '✅ Update check completed! Refreshing...';
+            statusSpan.style.color = 'green';
+            
+            // Reload page after 2 seconds to show any updates
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } else {
+            throw new Error(data.data || 'Update check failed');
+          }
+        } catch (error) {
+          statusSpan.textContent = '❌ Update check failed: ' + error.message;
+          statusSpan.style.color = 'red';
+        } finally {
+          updateButton.textContent = 'Check for Updates Now';
+          updateButton.disabled = false;
+        }
+      });
+    }
+  }
+
+  // Initialize manual update check
+  initManualUpdateCheck();
+
+  // Version refresh functionality
+  function initVersionRefresh() {
+    const refreshButton = $('ai-layout-refresh-versions');
+    
+    if (refreshButton) {
+      refreshButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        refreshButton.textContent = 'Refreshing...';
+        refreshButton.disabled = true;
+        
+        try {
+          const response = await fetch(AI_LAYOUT.ajaxUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              action: 'ai_layout_refresh_versions',
+              _ajax_nonce: AI_LAYOUT.ajaxNonce
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Reload page to show updated versions
+            window.location.reload();
+          } else {
+            throw new Error(data.data || 'Version refresh failed');
+          }
+        } catch (error) {
+          console.error('Version refresh failed:', error);
+          refreshButton.textContent = 'Failed';
+          setTimeout(() => {
+            refreshButton.textContent = 'Refresh';
+            refreshButton.disabled = false;
+          }, 2000);
+        }
+      });
+    }
+  }
+
+  // Initialize version refresh
+  initVersionRefresh();
+
   // Loading states
   function setLoading(loading) {
     const buttons = ['ai-generate', 'ai-regenerate', 'ai-download', 'ai-apply', 'ai-save-lib'];

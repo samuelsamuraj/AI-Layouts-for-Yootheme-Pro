@@ -3,7 +3,7 @@
  * Plugin Name: AI Layout for YOOtheme
  * Description: Generate, review, and compile AI-driven layouts to YOOtheme Pro JSON inside WordPress.
  * Version: <?php echo AI_LAYOUT_VERSION; ?>
- * Author: Samuraj / Samuel Ole Larsen
+ * Author: <a href="https://samuraj.dk">Samuraj ApS</a>
  * Requires at least: 6.0
  * Requires PHP: 7.4
  */
@@ -20,8 +20,13 @@ define('AI_LAYOUT_RATE_LIMIT', 10); // Max requests per hour
 define('AI_LAYOUT_CACHE_DURATION', 12 * HOUR_IN_SECONDS); // 12 hours
 define('AI_LAYOUT_API_TIMEOUT', 60); // API timeout in seconds
 
+// YOOtheme version constants
+define('AI_LAYOUT_YOOTHEME_VERSION', '4.5.24');
+define('AI_LAYOUT_YOOESSENTIALS_VERSION', '2.4.4');
+
 require_once AI_LAYOUT_PLUGIN_DIR . 'inc/rest.php';
 require_once AI_LAYOUT_PLUGIN_DIR . 'inc/plugin-update-checker.php';
+require_once AI_LAYOUT_PLUGIN_DIR . 'inc/yootheme-extension.php';
 
 // Initialize update checker
 new AI_Layout_Update_Checker(
@@ -84,6 +89,25 @@ function ai_layout_admin_page() {
   }
 
   echo '<div class="wrap"><h1>AI Layout</h1><p>Analyse → Wireframe → Compile (YOOtheme JSON)</p>';
+  
+  // Manual update check section
+  echo '<div class="notice notice-info inline">';
+  echo '<p><strong>Plugin Updates:</strong> ';
+  echo '<a href="#" id="ai-layout-manual-update-check" class="button button-secondary">Check for Updates Now</a> ';
+  echo '<span id="ai-layout-update-status"></span></p>';
+  echo '</div>';
+  
+  // YOOtheme version info
+  $versions = ai_layout_get_cached_yootheme_versions();
+  echo '<div class="notice notice-info inline">';
+  echo '<p><strong>YOOtheme Versions:</strong> ';
+  echo 'Pro: <code>' . esc_html($versions['pro']) . '</code> | ';
+  echo 'Essentials: <code>' . esc_html($versions['essentials']) . '</code> | ';
+  echo '<a href="#" id="ai-layout-refresh-versions" class="button button-small">Refresh</a>';
+  echo '<small style="margin-left: 10px;">Detected: ' . esc_html($versions['detected_at']) . '</small>';
+  echo '</p>';
+  echo '</div>';
+  
   echo '<form method="post" action="">';
   wp_nonce_field('ai_layout_settings', 'ai_layout_nonce');
   settings_fields('ai_layout');
@@ -98,8 +122,20 @@ add_action('admin_enqueue_scripts', function($hook){
   wp_enqueue_script('ai-layout-admin', AI_LAYOUT_PLUGIN_URL . 'assets/admin.js', ['wp-api'], AI_LAYOUT_VERSION, true);
   wp_localize_script('ai-layout-admin', 'AI_LAYOUT', [
     'restUrl' => esc_url_raw(rest_url('ai-layout/v1')),
-    'nonce'   => wp_create_nonce('wp_rest')
+    'nonce'   => wp_create_nonce('wp_rest'),
+    'ajaxUrl' => admin_url('admin-ajax.php'),
+    'ajaxNonce' => wp_create_nonce('ai_layout_check_updates')
   ]);
+});
+
+// AJAX handler for refreshing YOOtheme versions
+add_action('wp_ajax_ai_layout_refresh_versions', function() {
+  if (!current_user_can('edit_theme_options')) {
+    wp_die('Insufficient permissions');
+  }
+  
+  $versions = ai_layout_refresh_yootheme_versions();
+  wp_send_json_success($versions);
 });
 
 add_action('admin_init', function(){
@@ -151,4 +187,7 @@ function ai_layout_uninstall() {
   global $wpdb;
   $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_ai_layout_rate_limit_%'");
   $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_ai_layout_rate_limit_%'");
+  
+  // Clear version cache
+  delete_transient('ai_layout_yootheme_versions');
 }

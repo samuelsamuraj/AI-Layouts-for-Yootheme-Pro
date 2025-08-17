@@ -80,3 +80,40 @@
 #ai-layout-container {
   min-height: 200px;
 }
+
+/* Manual Update Check Styling */
+.notice.inline {
+  margin: 20px 0;
+  padding: 12px 15px;
+}
+
+.notice.inline p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#ai-layout-manual-update-check {
+  margin-left: 10px;
+}
+
+#ai-layout-update-status {
+  font-weight: 500;
+  margin-left: 10px;
+}
+
+/* Button states */
+#ai-layout-manual-update-check:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status colors */
+#ai-layout-update-status.success {
+  color: #16a34a;
+}
+
+#ai-layout-update-status.error {
+  color: #dc2626;
+}
