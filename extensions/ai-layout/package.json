@@ -4,10 +4,11 @@
   "description": "AI Layout Generator Extension for YOOtheme",
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack --mode production --no-stats",
+    "build": "webpack --mode production --no-stats --max-old-space-size=4096",
     "dev": "webpack --mode development --watch",
     "serve": "webpack serve --mode development",
-    "test": "npm run build"
+    "test": "npm run build",
+    "build:fast": "webpack --mode production --no-stats --max-old-space-size=4096 --optimization-minimize=false"
   },
   "dependencies": {
     "vue": "^3.3.0"

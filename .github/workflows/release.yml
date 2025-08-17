@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
     - name: Checkout code
@@ -24,13 +25,15 @@ jobs:
         node-version: '18'
         
     - name: Install Composer dependencies
-      run: composer install --no-dev --optimize-autoloader
+      run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+      timeout-minutes: 2
         
     - name: Build Extension
       run: |
         cd extensions/ai-layout
-        npm install --no-audit --no-fund
+        npm ci --no-audit --no-fund --prefer-offline
         npm run build
+      timeout-minutes: 5
         
     - name: Create plugin ZIP
       run: |
@@ -43,6 +46,7 @@ jobs:
         # Create ZIP file
         cd release
         zip -r ai-layout-for-yootheme.zip ai-layout-for-yootheme/
+      timeout-minutes: 2
         
     - name: Create Release
       uses: softprops/action-gh-release@v1
@@ -86,3 +90,4 @@ jobs:
           For support, please visit: https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro/issues
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      timeout-minutes: 2

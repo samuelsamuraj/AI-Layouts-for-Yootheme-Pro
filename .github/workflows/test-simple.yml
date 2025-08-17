@@ -1,0 +1,38 @@
+name: Test Simple Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        
+    - name: Test PHP Syntax
+      run: |
+        php -l ai-layout-for-yootheme.php
+        php -l inc/rest.php
+        php -l inc/yootheme-extension.php
+        php -l inc/settings.php
+        
+    - name: Test File Structure
+      run: |
+        ls -la
+        ls -la inc/
+        ls -la extensions/ai-layout/
+        test -f extensions/ai-layout/dist/index.js
+        
+    - name: Test Composer
+      run: composer validate --no-check-all
