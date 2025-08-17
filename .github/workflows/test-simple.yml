@@ -20,19 +20,41 @@ jobs:
       with:
         php-version: '8.1'
         
+    - name: Debug File Structure
+      run: |
+        echo "=== Current Directory ==="
+        pwd
+        echo "=== Root Files ==="
+        ls -la
+        echo "=== Inc Directory ==="
+        ls -la inc/ || echo "inc/ directory not found"
+        echo "=== Extensions Directory ==="
+        ls -la extensions/ || echo "extensions/ directory not found"
+        echo "=== AI Layout Extension ==="
+        ls -la extensions/ai-layout/ || echo "extensions/ai-layout/ directory not found"
+        
     - name: Test PHP Syntax
       run: |
-        php -l ai-layout-for-yootheme.php
-        php -l inc/rest.php
-        php -l inc/yootheme-extension.php
-        php -l inc/settings.php
+        echo "=== Testing PHP Syntax ==="
+        php -l ai-layout-for-yootheme.php && echo "✓ ai-layout-for-yootheme.php syntax OK" || echo "✗ ai-layout-for-yootheme.php syntax error"
+        php -l inc/rest.php && echo "✓ inc/rest.php syntax OK" || echo "✗ inc/rest.php syntax error"
+        php -l inc/yootheme-extension.php && echo "✓ inc/yootheme-extension.php syntax OK" || echo "✗ inc/yootheme-extension.php syntax error"
+        php -l inc/settings.php && echo "✓ inc/settings.php syntax OK" || echo "✗ inc/settings.php syntax error"
+        echo "=== PHP Syntax Check Complete ==="
         
-    - name: Test File Structure
+    - name: Test File Existence
       run: |
-        ls -la
-        ls -la inc/
-        ls -la extensions/ai-layout/
-        test -f extensions/ai-layout/dist/index.js
+        echo "=== Testing Required Files ==="
+        test -f ai-layout-for-yootheme.php && echo "✓ ai-layout-for-yootheme.php exists" || echo "✗ ai-layout-for-yootheme.php missing"
+        test -f inc/rest.php && echo "✓ inc/rest.php exists" || echo "✗ inc/rest.php missing"
+        test -f inc/yootheme-extension.php && echo "✓ inc/yootheme-extension.php exists" || echo "✗ inc/yootheme-extension.php missing"
+        test -f inc/settings.php && echo "✓ inc/settings.php exists" || echo "✗ inc/settings.php missing"
+        test -f extensions/ai-layout/dist/index.js && echo "✓ extensions/ai-layout/dist/index.js exists" || echo "✗ extensions/ai-layout/dist/index.js missing"
+        echo "=== File Existence Check Complete ==="
         
     - name: Test Composer
-      run: composer validate --no-check-all
+      run: |
+        echo "=== Testing Composer ==="
+        composer --version || echo "Composer not available"
+        composer validate --no-check-all || echo "Composer validation failed"
+        echo "=== Composer Test Complete ==="

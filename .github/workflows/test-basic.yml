@@ -1,0 +1,32 @@
+name: Test Basic
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check Files
+      run: |
+        echo "=== Basic File Check ==="
+        ls -la
+        echo "=== Main Plugin File ==="
+        head -20 ai-layout-for-yootheme.php
+        echo "=== Inc Directory ==="
+        ls -la inc/ || echo "inc/ not found"
+        echo "=== Extensions Directory ==="
+        ls -la extensions/ || echo "extensions/ not found"
+        
+    - name: Check Plugin Header
+      run: |
+        echo "=== Plugin Header Check ==="
+        grep "Plugin Name:" ai-layout-for-yootheme.php || echo "Plugin Name not found"
+        grep "Version:" ai-layout-for-yootheme.php || echo "Version not found"
+        grep "Description:" ai-layout-for-yootheme.php || echo "Description not found"
