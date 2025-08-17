@@ -182,6 +182,13 @@ extensions/ai-layout/
 
 ## Changelog
 
+### Version 0.3.2
+- **FIXED**: YOOtheme extension integration issues
+- **IMPROVED**: Debug logging for extension detection
+- **UPDATED**: Extension configuration for proper YOOtheme integration
+- **ADDED**: WordPress customizer panel integration
+- **ENHANCED**: Settings class with plugin action links
+
 ### Version 0.3.0
 - **NEW**: YOOtheme Extension Integration
   - Direct integration with YOOtheme customizer
