@@ -27,12 +27,16 @@ define('AI_LAYOUT_YOOESSENTIALS_VERSION', '2.4.4');
 require_once AI_LAYOUT_PLUGIN_DIR . 'inc/rest.php';
 require_once AI_LAYOUT_PLUGIN_DIR . 'inc/plugin-update-checker.php';
 require_once AI_LAYOUT_PLUGIN_DIR . 'inc/yootheme-extension.php';
+require_once AI_LAYOUT_PLUGIN_DIR . 'inc/settings.php';
 
 // Initialize update checker
 new AI_Layout_Update_Checker(
     __FILE__,
     'https://api.github.com/repos/samuelsamuraj/AI-Layouts-for-Yootheme-Pro'
 );
+
+// Initialize settings
+AI_Layout_Settings::init();
 
 // Add security headers
 add_action('admin_init', function() {
@@ -65,39 +69,14 @@ function ai_layout_admin_page() {
     wp_die(__('You do not have sufficient permissions to access this page.'));
   }
 
-  // Handle form submission with nonce validation
-  if (isset($_POST['submit']) && isset($_POST['ai_layout_nonce'])) {
-    if (wp_verify_nonce($_POST['ai_layout_nonce'], 'ai_layout_settings')) {
-      // Process form submission
-      if (isset($_POST['ai_layout_openai_api_key'])) {
-        update_option('ai_layout_openai_api_key', sanitize_text_field($_POST['ai_layout_openai_api_key']));
-      }
-      if (isset($_POST['ai_layout_model'])) {
-        update_option('ai_layout_model', sanitize_text_field($_POST['ai_layout_model']));
-      }
-      if (empty(get_option('ai_layout_model'))) {
-        update_option('ai_layout_model', 'gpt-4o-mini');
-      }
-      if (isset($_POST['ai_layout_unsplash_access_key'])) {
-        update_option('ai_layout_unsplash_access_key', sanitize_text_field($_POST['ai_layout_unsplash_access_key']));
-      }
-      if (isset($_POST['ai_layout_pexels_api_key'])) {
-        update_option('ai_layout_pexels_api_key', sanitize_text_field($_POST['ai_layout_pexels_api_key']));
-      }
-
-      echo '<div class="notice notice-success"><p>Settings saved successfully!</p></div>';
-    } else {
-      echo '<div class="notice notice-error"><p>Security check failed. Please try again.</p></div>';
-    }
-  }
-
-  echo '<div class="wrap"><h1>AI Layout</h1><p>Analyse → Wireframe → Compile (YOOtheme JSON)</p>';
+  echo '<div class="wrap"><h1>AI Layout Generator</h1>';
+  echo '<p>Generate, review, and compile AI-driven layouts to YOOtheme Pro JSON.</p>';
   
-  // Manual update check section
+  // Quick actions
   echo '<div class="notice notice-info inline">';
-  echo '<p><strong>Plugin Updates:</strong> ';
-  echo '<a href="#" id="ai-layout-manual-update-check" class="button button-secondary">Check for Updates Now</a> ';
-  echo '<span id="ai-layout-update-status"></span></p>';
+  echo '<p><strong>Quick Actions:</strong> ';
+  echo '<a href="' . admin_url('options-general.php?page=ai_layout_settings') . '" class="button button-primary">Configure API Keys</a> ';
+  echo '<a href="#" id="ai-layout-manual-update-check" class="button button-secondary">Check for Updates</a></p>';
   echo '</div>';
   
   // YOOtheme version info
@@ -111,12 +90,20 @@ function ai_layout_admin_page() {
   echo '</p>';
   echo '</div>';
   
-  echo '<form method="post" action="">';
-  wp_nonce_field('ai_layout_settings', 'ai_layout_nonce');
-  settings_fields('ai_layout');
-  do_settings_sections('ai_layout');
-  submit_button('Save API Settings');
-  echo '</form><hr/><div id="ai-layout-app"></div></div>';
+  // Main app container
+  echo '<div id="ai-layout-app"></div>';
+  
+  // Instructions
+  echo '<div class="notice notice-info">';
+  echo '<h3>How to Use:</h3>';
+  echo '<ol>';
+  echo '<li><strong>Configure API Keys:</strong> Go to <a href="' . admin_url('options-general.php?page=ai_layout_settings') . '">Settings → AI Layout</a> to add your OpenAI API key</li>';
+  echo '<li><strong>Open YOOtheme Customizer:</strong> Go to any page and click "Customize" to access the AI Layout panel</li>';
+  echo '<li><strong>Generate Layouts:</strong> Use the AI Layout panel in the customizer to create layouts with natural language</li>';
+  echo '</ol>';
+  echo '</div>';
+  
+  echo '</div>';
 }
 
 add_action('admin_enqueue_scripts', function($hook){
@@ -141,32 +128,7 @@ add_action('wp_ajax_ai_layout_refresh_versions', function() {
   wp_send_json_success($versions);
 });
 
-add_action('admin_init', function(){
-  add_settings_section('ai_layout_api', 'API', function(){ echo '<p>Configure API keys (OpenAI required for ML; Unsplash/Pexels optional for images).</p>'; }, 'ai_layout');
 
-  add_settings_field('ai_layout_openai_api_key', 'OpenAI API key', function(){
-    $v = esc_attr(get_option('ai_layout_openai_api_key', ''));
-    echo '<input type="password" name="ai_layout_openai_api_key" value="'.$v.'" class="regular-text" />';
-  }, 'ai_layout','ai_layout_api');
-
-  add_settings_field('ai_layout_model', 'Model', function(){
-    $v = esc_attr(get_option('ai_layout_model', 'gpt-4o-mini'));
-    echo '<input type="text" name="ai_layout_model" value="'.$v.'" class="regular-text" />';
-    echo '<p class="description">OpenAI model to use (e.g., gpt-4o-mini, gpt-4o)</p>';
-  }, 'ai_layout','ai_layout_api');
-
-  add_settings_field('ai_layout_unsplash_access_key', 'Unsplash Access Key', function(){
-    $v = esc_attr(get_option('ai_layout_unsplash_access_key', ''));
-    echo '<input type="text" name="ai_layout_unsplash_access_key" value="'.$v.'" class="regular-text" />';
-  }, 'ai_layout','ai_layout_api');
-
-  add_settings_field('ai_layout_pexels_api_key', 'Pexels API Key', function(){
-    $v = esc_attr(get_option('ai_layout_pexels_api_key', ''));
-    echo '<input type="text" name="ai_layout_pexels_api_key" value="'.$v.'" class="regular-text" />';
-  }, 'ai_layout','ai_layout_api');
-
-
-});
 
 // Cleanup on uninstall
 register_uninstall_hook(__FILE__, 'ai_layout_uninstall');

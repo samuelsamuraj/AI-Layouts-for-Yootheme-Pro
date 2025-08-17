@@ -14,6 +14,7 @@ class AI_Layout_YOOtheme_Extension {
         add_filter('yootheme_extensions', array($this, 'register_extension'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_extension_assets'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_extension_assets'));
+        add_action('customize_register', array($this, 'customize_register'));
     }
     
     /**
@@ -24,9 +25,6 @@ class AI_Layout_YOOtheme_Extension {
         if (!$this->is_yootheme_active()) {
             return;
         }
-        
-        // Add customizer support
-        add_action('customize_register', array($this, 'customize_register'));
     }
     
     /**
@@ -34,8 +32,13 @@ class AI_Layout_YOOtheme_Extension {
      */
     private function is_yootheme_active() {
         $theme = wp_get_theme();
-        return strpos($theme->get('Name'), 'YOOtheme') !== false || 
-               strpos($theme->get('Template'), 'yootheme') !== false;
+        $is_active = strpos($theme->get('Name'), 'YOOtheme') !== false || 
+                     strpos($theme->get('Template'), 'yootheme') !== false;
+        
+        // Debug log
+        error_log('AI Layout: YOOtheme active check - Name: ' . $theme->get('Name') . ', Template: ' . $theme->get('Template') . ', Result: ' . ($is_active ? 'true' : 'false'));
+        
+        return $is_active;
     }
     
     /**
@@ -75,11 +78,19 @@ class AI_Layout_YOOtheme_Extension {
      * Customize register hook
      */
     public function customize_register($wp_customize) {
+        // Add AI Layout panel
+        $wp_customize->add_panel('ai_layout_panel', array(
+            'title' => __('AI Layout', 'ai-layout'),
+            'description' => __('Generate AI-driven layouts with OpenAI', 'ai-layout'),
+            'priority' => 100,
+            'capability' => 'edit_theme_options'
+        ));
+        
         // Add AI Layout section
         $wp_customize->add_section('ai_layout_section', array(
             'title' => __('AI Layout Generator', 'ai-layout'),
-            'priority' => 100,
-            'panel' => 'yootheme_panel'
+            'priority' => 10,
+            'panel' => 'ai_layout_panel'
         ));
         
         // Add AI Layout setting
@@ -99,4 +110,3 @@ class AI_Layout_YOOtheme_Extension {
 
 // Initialize the extension loader
 new AI_Layout_YOOtheme_Extension();
-}

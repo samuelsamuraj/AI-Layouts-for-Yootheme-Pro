@@ -43,9 +43,10 @@ return [
             // Register customizer controls
             $app->extend('customizer.controls', function ($controls) {
                 $controls['ai-layout-generator'] = [
-                    'type' => 'ai-layout-generator',
-                    'section' => 'ai-layout',
-                    'priority' => 10
+                    'component' => 'ai-layout-panel',
+                    'props' => [
+                        'type' => 'ai-layout-generator'
+                    ]
                 ];
                 return $controls;
             });
