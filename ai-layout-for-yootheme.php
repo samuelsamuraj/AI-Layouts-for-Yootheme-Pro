@@ -75,6 +75,9 @@ function ai_layout_admin_page() {
       if (isset($_POST['ai_layout_model'])) {
         update_option('ai_layout_model', sanitize_text_field($_POST['ai_layout_model']));
       }
+      if (empty(get_option('ai_layout_model'))) {
+        update_option('ai_layout_model', 'gpt-4o-mini');
+      }
       if (isset($_POST['ai_layout_unsplash_access_key'])) {
         update_option('ai_layout_unsplash_access_key', sanitize_text_field($_POST['ai_layout_unsplash_access_key']));
       }
@@ -147,8 +150,9 @@ add_action('admin_init', function(){
   }, 'ai_layout','ai_layout_api');
 
   add_settings_field('ai_layout_model', 'Model', function(){
-    $v = esc_attr(get_option('ai_layout_model', 'gpt-4.1-mini'));
+    $v = esc_attr(get_option('ai_layout_model', 'gpt-4o-mini'));
     echo '<input type="text" name="ai_layout_model" value="'.$v.'" class="regular-text" />';
+    echo '<p class="description">OpenAI model to use (e.g., gpt-4o-mini, gpt-4o)</p>';
   }, 'ai_layout','ai_layout_api');
 
   add_settings_field('ai_layout_unsplash_access_key', 'Unsplash Access Key', function(){

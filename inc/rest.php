@@ -355,7 +355,7 @@ function ai_layout_openai_call($system_prompt, $user_prompt){
     return new WP_Error('no_openai', 'OpenAI API key is missing');
   }
 
-  $model = ai_layout_setting('openai_model', 'gpt-4.1-mini');
+  $model = ai_layout_setting('openai_model', 'gpt-4o-mini');
   $endpoint = 'https://api.openai.com/v1/responses';
 
   $input_text = "SYSTEM:
@@ -367,7 +367,7 @@ USER:
   $body = [
     'model' => $model,
     'input' => $input_text,
-    'text'  => [ 'format' => 'json_object' ]
+    'response_format' => 'json_object'
   ];
 
   $json_body = wp_json_encode($body);
