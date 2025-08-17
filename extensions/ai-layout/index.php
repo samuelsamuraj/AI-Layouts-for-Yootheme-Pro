@@ -7,7 +7,7 @@ return [
     'title' => 'AI Layout',
     'icon' => 'layout',
     'description' => 'Generate AI-driven layouts with OpenAI',
-    'version' => '1.0.0',
+    'version' => '0.3.0',
     'author' => 'Samuraj ApS',
     'author_url' => 'https://samuraj.dk',
     'main' => __DIR__ . '/dist/index.js',

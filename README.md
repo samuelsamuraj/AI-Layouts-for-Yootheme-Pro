@@ -182,6 +182,16 @@ extensions/ai-layout/
 
 ## Changelog
 
+### Version 0.3.0
+- **NEW**: YOOtheme Extension Integration
+  - Direct integration with YOOtheme customizer
+  - Vue.js based interface
+  - Seamless SPA integration
+  - No theme modifications required
+- **NEW**: Webpack build system for extension
+- **NEW**: Vue.js component architecture
+- **IMPROVED**: Better user experience in customizer
+
 ### Version 0.2.3
 - 🔒 Enhanced security with nonce validation
 - 🛡️ Input sanitization and validation
