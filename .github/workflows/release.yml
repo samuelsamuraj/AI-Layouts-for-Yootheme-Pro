@@ -18,16 +18,29 @@ jobs:
       with:
         php-version: '8.1'
         
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: extensions/ai-layout/package-lock.json
+        
     - name: Install Composer dependencies
       run: composer install --no-dev --optimize-autoloader
-      
+        
+    - name: Build Extension
+      run: |
+        cd extensions/ai-layout
+        npm ci
+        npm run build
+        
     - name: Create plugin ZIP
       run: |
         # Create release directory
         mkdir -p release/ai-layout-for-yootheme
         
         # Copy plugin files
-        cp -r ai-layout-for-yootheme.php assets inc prompts schema composer.json README.md readme.txt release/ai-layout-for-yootheme/
+        cp -r ai-layout-for-yootheme.php assets inc extensions composer.json README.md readme.txt release/ai-layout-for-yootheme/
         
         # Create ZIP file
         cd release
@@ -38,28 +51,40 @@ jobs:
       with:
         files: release/ai-layout-for-yootheme.zip
         body: |
-          ## What's New
+          ## What's New in Version ${{ github.ref_name }}
           
-          This release includes various improvements and bug fixes.
+          This release includes the new YOOtheme Extension Integration!
           
-          ### Changes
-          - Enhanced security features
-          - Improved error handling
-          - Better user interface
+          ### 🎉 New Features
+          - **YOOtheme Extension Integration**: Direct integration with YOOtheme customizer
+          - **Vue.js Interface**: Modern, responsive UI built with Vue 3
+          - **Seamless SPA Integration**: No theme modifications required
+          - **Webpack Build System**: Professional build pipeline for extension
           
-          ### Installation
+          ### 🚀 Installation
           1. Download the ZIP file
           2. Upload to WordPress plugins directory
           3. Activate the plugin
-          4. Configure your API keys
+          4. Open YOOtheme customizer
+          5. Navigate to "AI Layout" panel
           
-          ### Requirements
+          ### 📋 Requirements
           - WordPress 6.0+
           - PHP 7.4+
+          - YOOtheme theme active
           - OpenAI API key
-          - GitHub Personal Access Token (for updates)
           
-          ### Support
-          For support, please visit: https://github.com/samuelsamuraj/ai-layout-for-yootheme/issues
+          ### 🔧 Development
+          ```bash
+          cd extensions/ai-layout
+          npm install
+          npm run build
+          ```
+          
+          ### 📚 Documentation
+          For full documentation, visit: https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro
+          
+          ### 🐛 Support
+          For support, please visit: https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro/issues
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -10,8 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=7.4",
-        "yahniselsts/plugin-update-checker": "^5.0"
+        "php": ">=7.4"
     },
     "autoload": {
         "psr-4": {
