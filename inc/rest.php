@@ -37,7 +37,10 @@ add_action('rest_api_init', function () {
     'methods'  => 'POST',
     'callback' => 'ai_layout_compile',
     'permission_callback' => function(){ 
-      return current_user_can('edit_theme_options') && wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest');
+      if (!current_user_can('edit_theme_options') || !wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest')) {
+        return false;
+      }
+      return ai_layout_check_rate_limit();
     },
     'args' => [
       'wireframe' => [
@@ -51,7 +54,10 @@ add_action('rest_api_init', function () {
     'methods'  => 'POST',
     'callback' => 'ai_layout_download_layout',
     'permission_callback' => function(){ 
-      return current_user_can('edit_theme_options') && wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest');
+      if (!current_user_can('edit_theme_options') || !wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest')) {
+        return false;
+      }
+      return ai_layout_check_rate_limit();
     },
     'args' => [
       'layout' => [
@@ -65,7 +71,10 @@ add_action('rest_api_init', function () {
     'methods'  => 'POST',
     'callback' => 'ai_layout_regenerate_unlocked',
     'permission_callback' => function(){ 
-      return current_user_can('edit_theme_options') && wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest');
+      if (!current_user_can('edit_theme_options') || !wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest')) {
+        return false;
+      }
+      return ai_layout_check_rate_limit();
     },
     'args' => [
       'wireframe' => [
@@ -79,7 +88,10 @@ add_action('rest_api_init', function () {
     'methods'  => 'POST',
     'callback' => 'ai_layout_apply_to_page',
     'permission_callback' => function(){ 
-      return current_user_can('edit_theme_options') && wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest');
+      if (!current_user_can('edit_theme_options') || !wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest')) {
+        return false;
+      }
+      return ai_layout_check_rate_limit();
     },
     'args' => [
       'post_id' => [
@@ -100,7 +112,10 @@ add_action('rest_api_init', function () {
     'methods'  => 'POST',
     'callback' => 'ai_layout_save_to_library',
     'permission_callback' => function(){ 
-      return current_user_can('edit_theme_options') && wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest');
+      if (!current_user_can('edit_theme_options') || !wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE'] ?? '', 'wp_rest')) {
+        return false;
+      }
+      return ai_layout_check_rate_limit();
     },
     'args' => [
       'layout' => [
@@ -147,6 +162,40 @@ function ai_layout_sanitize_input($input) {
 }
 
 /**
+ * Validate wireframe data structure
+ */
+function ai_layout_validate_wireframe($wireframe) {
+  if (!is_array($wireframe)) {
+    return false;
+  }
+  
+  // Check required fields
+  if (empty($wireframe['sections']) || !is_array($wireframe['sections'])) {
+    return false;
+  }
+  
+  // Validate sections structure
+  foreach ($wireframe['sections'] as $section) {
+    if (!is_array($section) || empty($section['name']) || !isset($section['components'])) {
+      return false;
+    }
+    
+    if (!is_array($section['components'])) {
+      return false;
+    }
+    
+    // Validate components
+    foreach ($section['components'] as $component) {
+      if (!is_array($component) || empty($component['type'])) {
+        return false;
+      }
+    }
+  }
+  
+  return true;
+}
+
+/**
  * Log errors for debugging
  */
 function ai_layout_log_error($message, $context = []) {
@@ -171,7 +220,7 @@ function ai_layout_check_rate_limit($user_id = null) {
     return true;
   }
   
-  if ($current_count >= 10) { // Max 10 requests per hour
+  if ($current_count >= AI_LAYOUT_RATE_LIMIT) { // Max requests per hour
     return false;
   }
   
@@ -215,7 +264,7 @@ USER:
       'Authorization' => 'Bearer ' . $key,
       'Content-Type'  => 'application/json'
     ],
-    'timeout' => 60,
+    'timeout' => AI_LAYOUT_API_TIMEOUT,
     'body' => $json_body
   ];
   
@@ -260,21 +309,36 @@ function ai_layout_image_lookup($keywords = []){
     $url = add_query_arg(['query'=>urlencode($q),'per_page'=>1], 'https://api.unsplash.com/search/photos');
     $args = ['headers'=>['Authorization'=>'Client-ID '.$unsplash], 'timeout'=>20];
     $res = wp_remote_get($url, $args);
-    if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) == 200){
+    
+    if (is_wp_error($res)) {
+      ai_layout_log_error('Unsplash API request failed', ['error' => $res->get_error_message(), 'query' => $q]);
+    } elseif (wp_remote_retrieve_response_code($res) !== 200) {
+      ai_layout_log_error('Unsplash API error response', ['code' => wp_remote_retrieve_response_code($res), 'response' => wp_remote_retrieve_body($res)]);
+    } else {
       $data = json_decode(wp_remote_retrieve_body($res), true);
-      if (!empty($data['results'][0]['urls']['regular'])){
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        ai_layout_log_error('Failed to decode Unsplash response', ['json_error' => json_last_error_msg()]);
+      } elseif (!empty($data['results'][0]['urls']['regular'])) {
         return $data['results'][0]['urls']['regular'];
       }
     }
   }
+  
   // Fallback to Pexels
   if (!empty($pexels)){
     $url = add_query_arg(['query'=>$q, 'per_page'=>1], 'https://api.pexels.com/v1/search');
     $args = ['headers'=>['Authorization'=>$pexels], 'timeout'=>20];
     $res = wp_remote_get($url, $args);
-    if (!is_wp_error($res) && wp_remote_retrieve_response_code($res) == 200){
+    
+    if (is_wp_error($res)) {
+      ai_layout_log_error('Pexels API request failed', ['error' => $res->get_error_message(), 'query' => $q]);
+    } elseif (wp_remote_retrieve_response_code($res) !== 200) {
+      ai_layout_log_error('Pexels API error response', ['code' => wp_remote_retrieve_response_code($res), 'response' => wp_remote_retrieve_body($res)]);
+    } else {
       $data = json_decode(wp_remote_retrieve_body($res), true);
-      if (!empty($data['photos'][0]['src']['large'])){
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        ai_layout_log_error('Failed to decode Pexels response', ['json_error' => json_last_error_msg()]);
+      } elseif (!empty($data['photos'][0]['src']['large'])) {
         return $data['photos'][0]['src']['large'];
       }
     }
@@ -401,7 +465,14 @@ function ai_layout_regenerate_unlocked(WP_REST_Request $r){
 function ai_layout_compile(WP_REST_Request $r){
   $payload = $r->get_json_params();
   if (empty($payload['wireframe'])) return new WP_Error('bad_request', 'Missing wireframe');
+  
   $wireframe = $payload['wireframe'];
+  
+  // Validate wireframe structure
+  if (!ai_layout_validate_wireframe($wireframe)) {
+    return new WP_Error('invalid_wireframe', 'Invalid wireframe structure');
+  }
+  
   $layout = ai_layout_compile_from_wireframe($wireframe, true);
   return new WP_REST_Response(['layout'=>$layout], 200);
 }

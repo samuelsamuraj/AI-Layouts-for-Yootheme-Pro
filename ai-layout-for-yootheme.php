@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AI Layout for YOOtheme
  * Description: Generate, review, and compile AI-driven layouts to YOOtheme Pro JSON inside WordPress.
- * Version: 0.2.3
+ * Version: <?php echo AI_LAYOUT_VERSION; ?>
  * Author: Samuraj / Samuel Ole Larsen
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -14,18 +14,19 @@ define('AI_LAYOUT_PLUGIN_FILE', __FILE__);
 define('AI_LAYOUT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AI_LAYOUT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
+// Plugin constants
+define('AI_LAYOUT_VERSION', '0.2.3');
+define('AI_LAYOUT_RATE_LIMIT', 10); // Max requests per hour
+define('AI_LAYOUT_CACHE_DURATION', 12 * HOUR_IN_SECONDS); // 12 hours
+define('AI_LAYOUT_API_TIMEOUT', 60); // API timeout in seconds
+
 require_once AI_LAYOUT_PLUGIN_DIR . 'inc/rest.php';
 require_once AI_LAYOUT_PLUGIN_DIR . 'inc/plugin-update-checker.php';
 
 // Initialize update checker
-$github_token = get_option('ai_layout_github_token', '');
-$is_private_repo = true; // Set to true for private repository
-
 new AI_Layout_Update_Checker(
     __FILE__,
-    'https://api.github.com/repos/samuelsamuraj/ai-layout-for-yootheme',
-    $github_token,
-    $is_private_repo
+    'https://api.github.com/repos/samuelsamuraj/AI-Layouts-for-Yootheme-Pro'
 );
 
 // Add security headers
@@ -75,9 +76,7 @@ function ai_layout_admin_page() {
       if (isset($_POST['ai_layout_pexels_api_key'])) {
         update_option('ai_layout_pexels_api_key', sanitize_text_field($_POST['ai_layout_pexels_api_key']));
       }
-      if (isset($_POST['ai_layout_github_token'])) {
-        update_option('ai_layout_github_token', sanitize_text_field($_POST['ai_layout_github_token']));
-      }
+
       echo '<div class="notice notice-success"><p>Settings saved successfully!</p></div>';
     } else {
       echo '<div class="notice notice-error"><p>Security check failed. Please try again.</p></div>';
@@ -95,8 +94,8 @@ function ai_layout_admin_page() {
 
 add_action('admin_enqueue_scripts', function($hook){
   if ($hook !== 'toplevel_page_ai-layout') return;
-  wp_enqueue_style('ai-layout-admin', AI_LAYOUT_PLUGIN_URL . 'assets/admin.css', [], '0.2.0');
-  wp_enqueue_script('ai-layout-admin', AI_LAYOUT_PLUGIN_URL . 'assets/admin.js', ['wp-api'], '0.2.0', true);
+  wp_enqueue_style('ai-layout-admin', AI_LAYOUT_PLUGIN_URL . 'assets/admin.css', [], AI_LAYOUT_VERSION);
+  wp_enqueue_script('ai-layout-admin', AI_LAYOUT_PLUGIN_URL . 'assets/admin.js', ['wp-api'], AI_LAYOUT_VERSION, true);
   wp_localize_script('ai-layout-admin', 'AI_LAYOUT', [
     'restUrl' => esc_url_raw(rest_url('ai-layout/v1')),
     'nonce'   => wp_create_nonce('wp_rest')
@@ -126,11 +125,7 @@ add_action('admin_init', function(){
     echo '<input type="text" name="ai_layout_pexels_api_key" value="'.$v.'" class="regular-text" />';
   }, 'ai_layout','ai_layout_api');
 
-  add_settings_field('ai_layout_github_token', 'GitHub Personal Access Token', function(){
-    $v = esc_attr(get_option('ai_layout_github_token', ''));
-    echo '<input type="password" name="ai_layout_github_token" value="'.$v.'" class="regular-text" />';
-    echo '<p class="description">Required for private repository access. Create a token with <code>repo</code> scope.</p>';
-  }, 'ai_layout','ai_layout_api');
+
 });
 
 // Cleanup on uninstall
@@ -142,7 +137,6 @@ function ai_layout_uninstall() {
   delete_option('ai_layout_model');
   delete_option('ai_layout_unsplash_access_key');
   delete_option('ai_layout_pexels_api_key');
-  delete_option('ai_layout_github_token');
   delete_option('ai_layout_library');
   
   // Remove uploaded files

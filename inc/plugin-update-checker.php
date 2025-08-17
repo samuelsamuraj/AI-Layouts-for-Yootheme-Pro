@@ -16,12 +16,12 @@ class AI_Layout_Update_Checker {
     private $check_period = 12; // hours
     private $is_private = false;
     
-    public function __construct($plugin_file, $github_url, $github_token = '', $is_private = false) {
+    public function __construct($plugin_file, $github_url) {
         $this->plugin_file = $plugin_file;
         $this->plugin_slug = basename($plugin_file, '.php');
         $this->github_url = $github_url;
-        $this->github_token = $github_token;
-        $this->is_private = $is_private;
+        $this->github_token = '';
+        $this->is_private = false;
         
         add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_updates'));
         add_filter('plugins_api', array($this, 'plugin_info'), 10, 3);
@@ -78,15 +78,7 @@ class AI_Layout_Update_Checker {
             'timeout' => 15
         );
         
-        // For private repos, token is required
-        if ($this->is_private && empty($this->github_token)) {
-            error_log('AI Layout: GitHub token required for private repository access');
-            return false;
-        }
-        
-        if (!empty($this->github_token)) {
-            $args['headers']['Authorization'] = 'Bearer ' . $this->github_token;
-        }
+        // Public repository - no token required
         
         $response = wp_remote_get($api_url, $args);
         

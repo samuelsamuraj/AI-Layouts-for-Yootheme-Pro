@@ -1,69 +1,458 @@
 {
-  "version": "1.0",
+  "version": "1.2",
+  "notes": "Comprehensive DSL -> YOOtheme mapping (elements, defaults, value maps, aliases, repeaters).",
+  "section_defaults": {
+    "row.props": { "margin": "medium", "margin_remove_bottom": true, "margin_remove_top": false },
+    "column.props": { "width": "expand" }
+  },
+
+  "uikit_passthrough": [
+    "style", "padding", "padding_remove_top", "padding_remove_bottom",
+    "container", "container_padding_remove", "container_width",
+    "image", "image_position", "image_size", "image_effect",
+    "image_parallax_bgy", "image_loading", "image_parallax_easing",
+    "overlay", "overlay_mode", "overlay_style",
+    "header_transparent", "header_transparent_noplaceholder", "header_transparent_text_color",
+    "title_position", "title_breakpoint", "title_rotation", "vertical_align", "width", "maxwidth"
+  ],
+
+  "aliases": {
+    "headline": ["heading", "title"],
+    "text": ["paragraph", "copy", "richtext"],
+    "buttons": ["cta", "button_group", "buttonbar"],
+    "image": ["picture", "photo"],
+    "gallery": ["mosaic", "image_grid"],
+    "slideshow": ["carousel", "slider"],
+    "iconlist": ["features_list", "bullets"],
+    "logos": ["logo_cloud", "brand_strip"],
+    "quote": ["testimonial"],
+    "accordion": ["faq_accordion"],
+    "tabs": ["tabset"],
+    "card": ["panel", "tile"],
+    "grid": ["columns", "features_grid"],
+    "spacer": ["gap"],
+    "divider": ["rule", "separator"],
+    "alert": ["notice"],
+    "counter": ["stat", "kpi"],
+    "progress": ["meter"],
+    "social": ["social_links"],
+    "video": ["embed_video"],
+    "map": ["google_map"],
+    "code": ["html"],
+    "table": ["datatable"],
+    "pricing": ["pricing_table", "plans"],
+    "timeline": ["steps"],
+    "form": ["contact_form"]
+  },
+
+  "value_maps": {
+    "button.style": {
+      "primary": "primary",
+      "secondary": "secondary",
+      "text": "text",
+      "link": "link",
+      "default": "primary"
+    },
+    "button.size": {
+      "xs": "small",
+      "sm": "small",
+      "md": "default",
+      "lg": "large",
+      "xl": "large"
+    },
+    "image.object_fit": {
+      "cover": "cover",
+      "contain": "contain",
+      "fill": "cover",
+      "none": "auto"
+    },
+    "alignment": {
+      "left": "left",
+      "center": "center",
+      "right": "right",
+      "justify": "justify"
+    },
+    "text.size": {
+      "xs": "small",
+      "sm": "small",
+      "md": "default",
+      "lg": "large",
+      "xl": "xlarge",
+      "2xl": "2xlarge",
+      "3xl": "3xlarge"
+    },
+    "badge.style": {
+      "default": "default",
+      "success": "success",
+      "warning": "warning",
+      "danger": "danger",
+      "primary": "primary",
+      "secondary": "secondary"
+    },
+    "card.style": {
+      "default": "default",
+      "muted": "muted",
+      "primary": "primary",
+      "secondary": "secondary",
+      "soft": "soft"
+    },
+    "grid.columns": {
+      "1": "1-1",
+      "2": "1-2",
+      "3": "1-3",
+      "4": "1-4",
+      "5": "1-5",
+      "6": "1-6"
+    }
+  },
+
   "component_map": {
     "headline": {
       "element": "headline",
       "props": {
         "title": "copy_hint",
-        "title_element": "h1"
+        "title_element": {"const": "h1", "fallback": "h2"},
+        "align": "align",
+        "text_size": "size->text.size"
       }
     },
+
+    "subheadline": {
+      "element": "headline",
+      "props": {
+        "title": "copy_hint",
+        "title_element": {"const": "h2"},
+        "align": "align",
+        "text_size": {"const": "large"}
+      }
+    },
+
     "text": {
       "element": "text",
       "props": {
-        "content": "copy_hint"
+        "content": "copy_hint",
+        "dropcap": "dropcap",
+        "text_lead": "lead",
+        "align": "align"
       }
     },
+
     "buttons": {
       "element": "button",
       "props": {
-        "items": "variants",
-        "style": "primary",
-        "size": "large"
+        "items": {
+          "from": "variants",
+          "map": { "link_text": "$value", "link_url": "urls?$same_index:#" }
+        },
+        "style": "style->button.style",
+        "size": "size->button.size",
+        "align": "align"
       }
     },
+
+    "button": {
+      "element": "button",
+      "props": {
+        "items": [
+          { "link_text": "label", "link_url": "url?#" }
+        ],
+        "style": "style->button.style",
+        "size": "size->button.size",
+        "align": "align"
+      }
+    },
+
     "image": {
       "element": "image",
       "props": {
-        "image": "image_keywords->unsplash",
-        "alt": "image_keywords"
+        "image": "src?image_keywords->unsplash",
+        "alt": "alt?image_keywords",
+        "width": "width",
+        "height": "height",
+        "image_border": "border",
+        "box_shadow": "shadow",
+        "border_radius": "radius",
+        "object_fit": "fit->image.object_fit",
+        "align": "align",
+        "link": "link_url"
       }
     },
+
+    "gallery": {
+      "element": "gallery",
+      "props": {
+        "items": {
+          "from": "images",
+          "map": { "image": "src?image_keywords->unsplash", "alt": "alt?image_keywords" }
+        },
+        "columns": "columns->grid.columns",
+        "gutter": "gutter",
+        "lightbox": "lightbox",
+        "parallax": "parallax"
+      }
+    },
+
+    "slideshow": {
+      "element": "slideshow",
+      "props": {
+        "items": {
+          "from": "slides",
+          "map": { "image": "src?image_keywords->unsplash", "alt": "alt?image_keywords", "title": "title", "content": "text" }
+        },
+        "autoplay": "autoplay",
+        "autoplay_interval": "interval",
+        "nav": "nav",
+        "kenburns": "kenburns"
+      }
+    },
+
+    "video": {
+      "element": "video",
+      "props": {
+        "source": "src",
+        "poster": "poster?image_keywords->unsplash",
+        "controls": "controls",
+        "muted": "muted",
+        "loop": "loop",
+        "autoplay": "autoplay",
+        "playsinline": "playsinline",
+        "ratio": "ratio"
+      }
+    },
+
+    "map": {
+      "element": "map",
+      "props": {
+        "address": "address",
+        "lat": "lat",
+        "lng": "lng",
+        "zoom": "zoom",
+        "marker_text": "marker_text"
+      }
+    },
+
+    "icon": {
+      "element": "icon",
+      "props": {
+        "icon": "name",
+        "ratio": "size",
+        "color": "color",
+        "link": "url"
+      }
+    },
+
     "iconlist": {
       "element": "list",
       "props": {
-        "items": "items",
-        "icon": "check"
+        "items": { "from": "items", "map": { "content": "$value" } },
+        "icon": "icon?check",
+        "divider": "divider"
       }
     },
-    "logos": {
-      "element": "image",
+
+    "list": {
+      "element": "list",
       "props": {
-        "image": "static:logos"
+        "items": { "from": "items", "map": { "content": "text" } },
+        "marker": "marker",
+        "divider": "divider"
       }
     },
+
+    "grid": {
+      "element": "grid",
+      "props": {
+        "items": {
+          "from": "cards",
+          "map": {
+            "title": "title",
+            "content": "text",
+            "image": "image.src?image.image_keywords->unsplash",
+            "link": "link"
+          }
+        },
+        "columns": "columns->grid.columns",
+        "gutter": "gutter",
+        "match_height": "match"
+      }
+    },
+
+    "card": {
+      "element": "card",
+      "props": {
+        "title": "title",
+        "content": "text",
+        "image": "image.src?image.image_keywords->unsplash",
+        "badge": "badge.text",
+        "badge_style": "badge.style->badge.style",
+        "footer": "footer",
+        "style": "style->card.style",
+        "hover": "hover",
+        "link": "link"
+      }
+    },
+
+    "logos": {
+      "element": "grid",
+      "props": {
+        "items": {
+          "from": "logos",
+          "map": { "image": "src", "alt": "alt?brand" }
+        },
+        "columns": "columns->grid.columns",
+        "gutter": "gutter",
+        "align": "align"
+      }
+    },
+
     "quote": {
       "element": "text",
       "props": {
-        "content": "copy_hint"
+        "content": "copy_hint",
+        "cite": "author",
+        "align": "align"
       }
-    }
-  },
-  "section_defaults": {
-    "row.props": {
-      "margin": "medium",
-      "margin_remove_bottom": true
     },
-    "column.props": {
-      "width": "expand"
+
+    "accordion": {
+      "element": "accordion",
+      "props": {
+        "items": {
+          "from": "items",
+          "map": { "title": "title", "content": "content" }
+        },
+        "collapsible": "collapsible",
+        "multiple": "multiple"
+      }
+    },
+
+    "tabs": {
+      "element": "tabs",
+      "props": {
+        "items": {
+          "from": "items",
+          "map": { "title": "title", "content": "content" }
+        },
+        "align": "align"
+      }
+    },
+
+    "table": {
+      "element": "table",
+      "props": {
+        "header": { "from": "header", "map": { "content": "$value" } },
+        "rows": {
+          "from": "rows",
+          "map": { "cells": { "from": "$value", "map": { "content": "$value" } } }
+        },
+        "striped": "striped",
+        "hover": "hover",
+        "divider": "divider",
+        "responsive": "responsive"
+      }
+    },
+
+    "divider": {
+      "element": "divider",
+      "props": { "icon": "icon", "width": "width", "align": "align" }
+    },
+
+    "spacer": {
+      "element": "spacer",
+      "props": { "height": "size" }
+    },
+
+    "alert": {
+      "element": "alert",
+      "props": { "content": "text", "style": "style", "dismiss": "dismiss" }
+    },
+
+    "badge": {
+      "element": "badge",
+      "props": { "text": "text", "style": "style->badge.style" }
+    },
+
+    "breadcrumb": {
+      "element": "breadcrumb",
+      "props": { "items": { "from": "items", "map": { "text": "text", "link": "link" } } }
+    },
+
+    "counter": {
+      "element": "counter",
+      "props": {
+        "number": "value",
+        "suffix": "suffix",
+        "prefix": "prefix",
+        "duration": "duration",
+        "align": "align"
+      }
+    },
+
+    "progress": {
+      "element": "progress",
+      "props": { "value": "value", "max": "max", "striped": "striped", "active": "active" }
+    },
+
+    "pricing": {
+      "element": "grid",
+      "props": {
+        "items": {
+          "from": "plans",
+          "map": {
+            "title": "title",
+            "content": "description",
+            "price": "price.value",
+            "period": "price.period",
+            "features": { "from": "features", "map": { "content": "$value" } },
+            "button_text": "cta.text",
+            "button_link": "cta.url",
+            "highlight": "highlight"
+          }
+        },
+        "columns": "columns->grid.columns",
+        "gutter": "gutter",
+        "match_height": true
+      }
+    },
+
+    "timeline": {
+      "element": "list",
+      "props": {
+        "items": {
+          "from": "steps",
+          "map": { "content": "text", "badge": "label", "meta": "date" }
+        },
+        "divider": true
+      }
+    },
+
+    "social": {
+      "element": "social",
+      "props": {
+        "items": {
+          "from": "links",
+          "map": { "icon": "network", "link": "url" }
+        },
+        "align": "align"
+      }
+    },
+
+    "form": {
+      "element": "text",
+      "props": {
+        "content": "[Form placeholder] Erstat med WP-form shortcode",
+        "align": "align"
+      }
+    },
+
+    "code": {
+      "element": "code",
+      "props": { "content": "content", "language": "language", "inline": "inline" }
     }
   },
-  "uikit_passthrough": [
-    "style",
-    "padding",
-    "header_transparent",
-    "header_transparent_text_color",
-    "title_breakpoint",
-    "title_position"
-  ]
+
+  "fallbacks": {
+    "unknown_component": { "element": "text", "props": { "content": "[Unsupported component]" } },
+    "image_src": "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=60"
+  }
 }

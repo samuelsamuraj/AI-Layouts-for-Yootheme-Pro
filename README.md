@@ -47,11 +47,7 @@ composer require samuelsamuraj/ai-layout-for-yootheme
 - Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
 - Supports GPT-4 and other models
 
-### GitHub Personal Access Token (Required for Private Repo)
-- Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
-- Click "Generate new token (classic)"
-- Select `repo` scope for full repository access
-- Copy the token and paste it in the plugin settings
+
 
 ### Unsplash (Optional)
 - Get your access key from [Unsplash Developers](https://unsplash.com/developers)
@@ -65,15 +61,12 @@ composer require samuelsamuraj/ai-layout-for-yootheme
 
 This plugin automatically checks for updates from GitHub Releases:
 
-1. **Create a private GitHub repository**: `samuelsamuraj/ai-layout-for-yootheme`
-2. **Generate a Personal Access Token** with `repo` scope
-3. **Add the token** in the plugin settings
-4. **Push your code** to the repository
-5. **Create a release**:
+1. **Push your code** to the repository
+2. **Create a release**:
    - Tag: `v0.2.4` (semantic versioning)
    - Release title: `Version 0.2.4`
    - Description: Include changelog and features
-6. **Attach ZIP file** (optional but recommended)
+3. **Attach ZIP file** (optional but recommended)
 
 ### Release ZIP Structure
 ```
@@ -91,7 +84,7 @@ ai-layout-for-yootheme/
 ### Local Development
 ```bash
 # Clone the repository
-git clone https://github.com/samuelsamuraj/ai-layout-for-yootheme.git
+git clone https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro.git
 
 # Install dependencies
 composer install
@@ -132,12 +125,24 @@ ai-layout-for-yootheme/
 - ✅ Security headers
 - ✅ Error logging and monitoring
 
+## GitHub Actions Automation
+
+The included `.github/workflows/release.yml` will:
+- Trigger on tag pushes (`v*`)
+- Install dependencies
+- Create properly structured ZIP
+- Publish release with ZIP attachment
+- Generate release notes
+
+**Note**: Since this is a public repository, no authentication is required for the workflow.
+
 ## Requirements
 
 - WordPress 6.0+
 - PHP 7.4+
 - OpenAI API key
 - `edit_theme_options` capability
+- Internet access for GitHub updates
 
 ## Changelog
 
@@ -147,7 +152,8 @@ ai-layout-for-yootheme/
 - 🚫 Rate limiting to prevent abuse
 - 📝 Improved error handling and logging
 - 🎨 Better UI with loading states
-- 🔄 GitHub Releases update system
+- 🔄 GitHub Releases update system (public repository)
+- 🚀 Simplified setup - no token required
 
 ### Version 0.2.0
 - 🚀 Initial release
@@ -157,9 +163,9 @@ ai-layout-for-yootheme/
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/samuelsamuraj/ai-layout-for-yootheme/issues)
-- **Documentation**: [GitHub Wiki](https://github.com/samuelsamuraj/ai-layout-for-yootheme/wiki)
-- **Releases**: [GitHub Releases](https://github.com/samuelsamuraj/ai-layout-for-yootheme/releases)
+- **Issues**: [GitHub Issues](https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro/issues)
+- **Documentation**: [GitHub Wiki](https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro/wiki)
+- **Releases**: [GitHub Releases](https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro/releases)
 
 ## License
 
