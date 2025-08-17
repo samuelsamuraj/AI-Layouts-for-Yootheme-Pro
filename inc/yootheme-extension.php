@@ -99,3 +99,4 @@ class AI_Layout_YOOtheme_Extension {
 
 // Initialize the extension loader
 new AI_Layout_YOOtheme_Extension();
+}
