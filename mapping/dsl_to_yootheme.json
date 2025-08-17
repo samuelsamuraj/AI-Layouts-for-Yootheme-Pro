@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "component_map": {
+    "headline": {
+      "element": "headline",
+      "props": {
+        "title": "copy_hint",
+        "title_element": "h1"
+      }
+    },
+    "text": {
+      "element": "text",
+      "props": {
+        "content": "copy_hint"
+      }
+    },
+    "buttons": {
+      "element": "button",
+      "props": {
+        "items": "variants",
+        "style": "primary",
+        "size": "large"
+      }
+    },
+    "image": {
+      "element": "image",
+      "props": {
+        "image": "image_keywords->unsplash",
+        "alt": "image_keywords"
+      }
+    },
+    "iconlist": {
+      "element": "list",
+      "props": {
+        "items": "items",
+        "icon": "check"
+      }
+    },
+    "logos": {
+      "element": "image",
+      "props": {
+        "image": "static:logos"
+      }
+    },
+    "quote": {
+      "element": "text",
+      "props": {
+        "content": "copy_hint"
+      }
+    }
+  },
+  "section_defaults": {
+    "row.props": {
+      "margin": "medium",
+      "margin_remove_bottom": true
+    },
+    "column.props": {
+      "width": "expand"
+    }
+  },
+  "uikit_passthrough": [
+    "style",
+    "padding",
+    "header_transparent",
+    "header_transparent_text_color",
+    "title_breakpoint",
+    "title_position"
+  ]
+}

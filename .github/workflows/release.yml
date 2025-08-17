@@ -1,0 +1,65 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        
+    - name: Install Composer dependencies
+      run: composer install --no-dev --optimize-autoloader
+      
+    - name: Create plugin ZIP
+      run: |
+        # Create release directory
+        mkdir -p release/ai-layout-for-yootheme
+        
+        # Copy plugin files
+        cp -r ai-layout-for-yootheme.php assets inc prompts schema composer.json README.md readme.txt release/ai-layout-for-yootheme/
+        
+        # Create ZIP file
+        cd release
+        zip -r ai-layout-for-yootheme.zip ai-layout-for-yootheme/
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release/ai-layout-for-yootheme.zip
+        body: |
+          ## What's New
+          
+          This release includes various improvements and bug fixes.
+          
+          ### Changes
+          - Enhanced security features
+          - Improved error handling
+          - Better user interface
+          
+          ### Installation
+          1. Download the ZIP file
+          2. Upload to WordPress plugins directory
+          3. Activate the plugin
+          4. Configure your API keys
+          
+          ### Requirements
+          - WordPress 6.0+
+          - PHP 7.4+
+          - OpenAI API key
+          - GitHub Personal Access Token (for updates)
+          
+          ### Support
+          For support, please visit: https://github.com/samuelsamuraj/ai-layout-for-yootheme/issues
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,26 @@
+{
+    "name": "samuelsamuraj/ai-layout-for-yootheme",
+    "description": "Generate, review, and compile AI-driven layouts to YOOtheme Pro JSON inside WordPress",
+    "type": "wordpress-plugin",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/samuelsamuraj/ai-layout-for-yootheme"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "yahniselsts/plugin-update-checker": "^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AI_Layout\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "github-protocols": ["https", "ssh"]
+    }
+}

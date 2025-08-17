@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "YOOtheme Layout (subset)",
+  "type": "object",
+  "required": [
+    "type",
+    "children",
+    "name",
+    "version"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "layout"
+    },
+    "version": {
+      "type": "string"
+    },
+    "yooessentialsVersion": {
+      "type": "string"
+    },
+    "modified": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "children": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "children",
+          "props"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "const": "section"
+          },
+          "props": {
+            "type": "object"
+          },
+          "children": {
+            "type": "array"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

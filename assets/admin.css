@@ -1,0 +1,82 @@
+
+.ai-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:1100px){.ai-grid{grid-template-columns:1fr 1fr}}
+.ai-card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:16px}
+.ai-card h2{margin-top:0}
+.ai-card label{display:block;margin:8px 0}
+.ai-card input[type=text], .ai-card input[type=url], .ai-card textarea{width:100%}
+.ai-actions{margin-top:8px}
+.ai-pre{max-height:360px;overflow:auto;background:#0b1020;color:#e6f0ff;padding:12px;border-radius:6px}
+
+/* Error and Success States */
+.ai-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.ai-success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+/* Loading States */
+.ai-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-actions button {
+  background: #0073aa;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-actions button:hover:not(:disabled) {
+  background: #005a87;
+}
+
+.ai-actions button:disabled {
+  background: #ccc;
+}
+
+/* Form Improvements */
+.ai-card form {
+  margin: 0;
+}
+
+.ai-card input[type=text], 
+.ai-card input[type=url], 
+.ai-card textarea {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.ai-card input[type=text]:focus, 
+.ai-card input[type=url]:focus, 
+.ai-card textarea:focus {
+  border-color: #0073aa;
+  outline: none;
+  box-shadow: 0 0 0 1px #0073aa;
+}
+
+/* Container styling */
+#ai-analysis-container,
+#ai-wireframe-container,
+#ai-layout-container {
+  min-height: 200px;
+}
