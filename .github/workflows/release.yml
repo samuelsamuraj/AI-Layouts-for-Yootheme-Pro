@@ -22,8 +22,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: extensions/ai-layout/package-lock.json
         
     - name: Install Composer dependencies
       run: composer install --no-dev --optimize-autoloader
@@ -31,7 +29,7 @@ jobs:
     - name: Build Extension
       run: |
         cd extensions/ai-layout
-        npm ci
+        npm install --no-audit --no-fund
         npm run build
         
     - name: Create plugin ZIP
