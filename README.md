@@ -182,6 +182,13 @@ extensions/ai-layout/
 
 ## Changelog
 
+### Version 0.3.3
+- **FIXED**: GitHub Actions build issues and 'Too many retries' error
+- **IMPROVED**: Build performance with npm ci and webpack optimizations
+- **ADDED**: Timeout limits and better error handling in CI/CD
+- **ENHANCED**: Plugin header information for better WordPress recognition
+- **UPDATED**: All version numbers to 0.3.3 for consistency
+
 ### Version 0.3.2
 - **FIXED**: YOOtheme extension integration issues
 - **IMPROVED**: Debug logging for extension detection

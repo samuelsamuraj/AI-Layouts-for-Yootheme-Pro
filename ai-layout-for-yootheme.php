@@ -1,11 +1,19 @@
 <?php
 /**
  * Plugin Name: AI Layout for YOOtheme
+ * Plugin URI: https://github.com/samuelsamuraj/AI-Layouts-for-Yootheme-Pro
  * Description: Generate, review, and compile AI-driven layouts to YOOtheme Pro JSON inside WordPress.
- * Version: 0.3.2
- * Author: <a href="https://samuraj.dk">Samuraj ApS</a>
+ * Version: 0.3.3
  * Requires at least: 6.0
+ * Tested up to: 6.4
  * Requires PHP: 7.4
+ * Author: <a href="https://samuraj.dk">Samuraj ApS</a>
+ * Author URI: https://samuraj.dk
+ * License: MIT
+ * License URI: https://opensource.org/licenses/MIT
+ * Text Domain: ai-layout
+ * Domain Path: /languages
+ * Network: false
  */
 
 if (!defined('ABSPATH')) exit;
@@ -15,7 +23,7 @@ define('AI_LAYOUT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AI_LAYOUT_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 // Plugin constants
-define('AI_LAYOUT_VERSION', '0.3.2');
+define('AI_LAYOUT_VERSION', '0.3.3');
 define('AI_LAYOUT_RATE_LIMIT', 10); // Max requests per hour
 define('AI_LAYOUT_CACHE_DURATION', 12 * HOUR_IN_SECONDS); // 12 hours
 define('AI_LAYOUT_API_TIMEOUT', 60); // API timeout in seconds
