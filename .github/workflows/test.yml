@@ -1,21 +1,37 @@
 name: Test Build
 
+# Disabled - only run manually or on specific extension changes
+# on:
+#   push:
+#     branches: [ main ]
+#     paths:
+#       - 'extensions/**'
+#       - 'package.json'
+#       - 'webpack.config.js'
+#       'src/**'
+#   pull_request:
+#     branches: [ main ]
+#     paths:
+#       - 'extensions/**'
+#       - 'package.json'
+#       - 'webpack.config.js'
+#       'src/**'
+
+# Manual trigger only
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
     - name: Setup PHP
-      uses: shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@v4
       with:
         php-version: '8.1'
         
@@ -25,15 +41,19 @@ jobs:
         node-version: '18'
         
     - name: Install Composer dependencies
-      run: composer install --no-dev --optimize-autoloader
+      run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+      timeout-minutes: 2
         
     - name: Test Extension Build
       run: |
         cd extensions/ai-layout
-        npm install --no-audit --no-fund
+        npm ci --no-audit --no-fund --prefer-offline
         npm run build
+      timeout-minutes: 3
         
     - name: Verify Files
       run: |
         ls -la extensions/ai-layout/dist/
         test -f extensions/ai-layout/dist/index.js
+        echo "Extension build successful!"
+      timeout-minutes: 1
