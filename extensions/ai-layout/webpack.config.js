@@ -8,7 +8,7 @@ module.exports = {
     filename: 'index.js',
     library: {
       type: 'umd',
-      name: 'AILayoutExtension'
+      name: 'AIBuilderExtension'
     }
   },
   performance: {

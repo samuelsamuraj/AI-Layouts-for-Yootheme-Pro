@@ -1,14 +1,14 @@
 {
-  "name": "@yootheme/extension-ai-layout",
+  "name": "@yootheme/extension-ai-builder",
   "version": "0.3.4",
-  "description": "AI Layout Generator Extension for YOOtheme",
+  "description": "AI Builder Extension for YOOtheme - Generate AI-driven layouts",
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack --mode production --no-stats --max-old-space-size=4096",
+    "build": "webpack --mode production --no-stats",
     "dev": "webpack --mode development --watch",
     "serve": "webpack serve --mode development",
     "test": "npm run build",
-    "build:fast": "webpack --mode production --no-stats --max-old-space-size=4096 --optimization-minimize=false"
+    "build:fast": "webpack --mode production --no-stats --optimization-minimize=false"
   },
   "dependencies": {
     "vue": "^3.3.0"
@@ -28,6 +28,7 @@
     "yootheme",
     "extension",
     "ai",
+    "builder",
     "layout",
     "generator"
   ],

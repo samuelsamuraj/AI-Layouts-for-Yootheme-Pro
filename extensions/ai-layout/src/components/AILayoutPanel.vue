@@ -1,7 +1,7 @@
 <template>
   <div class="ai-layout-panel">
     <div class="ai-layout-header">
-      <h2>AI Layout Generator</h2>
+      <h2>AI Builder</h2>
       <p>Generate, review, and compile AI-driven layouts</p>
     </div>
 
