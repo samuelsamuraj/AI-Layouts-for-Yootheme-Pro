@@ -182,6 +182,11 @@ extensions/ai-layout/
 
 ## Changelog
 
+### Version 0.3.4 (Latest)
+- **GitHub Actions Optimization**: Disabled automatic Test Build workflow to prevent failures
+- **Improved Debugging**: Enhanced YOOtheme customizer integration debugging
+- **Better Error Handling**: More robust extension loader with comprehensive logging
+
 ### Version 0.3.3
 - **FIXED**: GitHub Actions build issues and 'Too many retries' error
 - **IMPROVED**: Build performance with npm ci and webpack optimizations
